@@ -1,115 +1,50 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ぱずが課題に全く手をつけず作ったページ</title>
-  <link rel="stylesheet" type="text/css" href="index.css">
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: black;
-    }
-
-    img {
-      width: 300px;
-      height: auto;
-      transition: filter 0.5s ease;
-    }
-
-
-    #imageback{
-      opacity: 1;
-    }
-
-    #imagekage{
-      opacity:1;
-    }
-
-    #imagehuti{
-      opacity: 1;
-    }
-
-    #imagemoji{
-      opacity: 1;
-    }
-
-  </style>
+  <title>iPhoneデバッグ用</title>
 </head>
-
 <body>
-  <dev class = "text">
-    <h1 class="red">Shake your phone!!!!</h1>
+  <h1>加速度センサーのテスト</h1>
+  <button id="permissionButton">加速度センサーを許可</button>
+  <div id="status">センサーの状態を表示します...</div>
 
-  <div class = "waku">
-  <div class = "relative">
-
-    <img id="imageback" src="back.png" class="back">
-    <img id="imagekage" src="kage.png" class="kage" style="opacity: 0;">
-    <img id="imagehuti" src="huti.png" class="huti" style="opacity: 0;">
-    <img id="imagemoji" src="moji.png" class="moji">
-    
-  </div>
-  
   <script>
-    // 振動を検知するための閾値
-    const SHAKE_THRESHOLD = 15;
-    let lastX = null, lastY = null, lastZ = null;
-    let lastUpdate = 0;
+    const statusDiv = document.getElementById('status');
+    const permissionButton = document.getElementById('permissionButton');
 
-    //現在の透明度
-    let alpha = 0;
-    let alphahuti = 0;
-
-    const imageback = document.getElementById('imageback');
-    const imagekage = document.getElementById('imagekage');
-    const imagehuti = document.getElementById('imagehuti');
-    const imagemoji = document.getElementById('imagemoji');
-
-    // 加速度センサーのデータを取得
-    window.addEventListener('devicemotion', (event) => {
-      const currentTime = Date.now();
-      if ((currentTime - lastUpdate) > 100) { // データ取得間隔を100msに制限
-        const { x, y, z } = event.acceleration;
-        if (lastX !== null && lastY !== null && lastZ !== null) {
-          const deltaX = x - lastX;
-          const deltaY = y - lastY;
-          const deltaZ = z - lastZ;
-          const speed = Math.abs(deltaX + deltaY + deltaZ);
-
-          if (speed > SHAKE_THRESHOLD) {
-            increaseImagekageOpcity();
+    // センサー許可リクエスト
+    permissionButton.addEventListener('click', async () => {
+      if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        try {
+          const permission = await DeviceMotionEvent.requestPermission();
+          if (permission === 'granted') {
+            statusDiv.textContent = 'センサーが許可されました！動作を確認してください。';
+            startDeviceMotionListener();
+          } else {
+            statusDiv.textContent = 'センサーの使用が許可されませんでした。';
           }
+        } catch (error) {
+          statusDiv.textContent = `センサー許可中にエラー: ${error.message}`;
         }
-        lastX = x;
-        lastY = y;
-        lastZ = z;
-        lastUpdate = currentTime;
+      } else {
+        statusDiv.textContent = 'このデバイスではセンサー許可が不要です。センサーを開始します。';
+        startDeviceMotionListener();
       }
     });
 
-
-    // 透明度を上げる関数
-    function increaseImagekageOpcity() {
-
-      if(alpha < 0.7){//透明度MAX=1
-        alpha += 0.05;
-        if(alpha > 0.7){
-          alpha = 0.7;
+    // 加速度センサーのデータを取得
+    function startDeviceMotionListener() {
+      window.addEventListener('devicemotion', (event) => {
+        const { x, y, z } = event.acceleration;
+        if (x !== null && y !== null && z !== null) {
+          statusDiv.textContent = `加速度センサーのデータ - X: ${x}, Y: ${y}, Z: ${z}`;
+        } else {
+          statusDiv.textContent = 'センサーからデータが取得できません。';
         }
-        imagekage.style.opacity = alpha;
-      }
-
-      if(alphahuti < 1){//透明度MAX=1
-        alphahuti += 0.05;
-        if(alphahuti > 1){
-          alphahuti = 1;
-        }
-        imagehuti.style.opacity = alphahuti;
-      }
-      
+      });
     }
+  </script>
+</body>
+</html>
