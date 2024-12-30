@@ -36,19 +36,15 @@
 
     // 加速度センサーのデータを取得
     function startDeviceMotionListener() {
+      // デバイスの動き（加速度）を取得
       window.addEventListener('devicemotion', (event) => {
-        const { x, y, z } = event.acceleration;
-        if (lastX !== null && lastY !== null && lastZ !== null) {
-          statusDiv.textContent = `加速度センサーのデータ - X: ${x}, Y: ${y}, Z: ${z}`;
-
-          const deltaX = x - lastX;
-          const deltaY = y - lastY;
-          const deltaZ = z - lastZ;
-          const speed = Math.abs(deltaX + deltaY + deltaZ);
-
-          statusDiv.textContent = `{x}+{y}+{z}`;
-          
+        // 加速度データを取得
+        const { x, y, z } = event.acceleration; // X, Y, Z 軸の加速度
+        if (x !== null && y !== null && z !== null) {
+          // データが取得できた場合
+          statusDiv.textContent = `加速度センサーのデータ - X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z.toFixed(2)}`;
         } else {
+          // データが取得できない場合
           statusDiv.textContent = 'センサーからデータが取得できません。';
         }
       });
