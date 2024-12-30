@@ -38,8 +38,16 @@
     function startDeviceMotionListener() {
       window.addEventListener('devicemotion', (event) => {
         const { x, y, z } = event.acceleration;
-        if (x !== null && y !== null && z !== null) {
+        if (lastX !== null && lastY !== null && lastZ !== null) {
           statusDiv.textContent = `加速度センサーのデータ - X: ${x}, Y: ${y}, Z: ${z}`;
+
+          const deltaX = x - lastX;
+          const deltaY = y - lastY;
+          const deltaZ = z - lastZ;
+          const speed = Math.abs(deltaX + deltaY + deltaZ);
+
+          statusDiv.textContent = `{x}+{y}+{z}`;
+          
         } else {
           statusDiv.textContent = 'センサーからデータが取得できません。';
         }
